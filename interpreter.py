@@ -64,7 +64,11 @@ def interpret_sql(result):
 
                     if isinstance(condition_list[i], pyparsing.results.ParseResults):
                         res = condition_list[i][0].split('.')
-                        column = f'{res[1]}_x' if res[0] == table_name else f'{res[1]}_y'
+                        if res[1] not in df_a.columns or res[1] not in df_b.columns:
+                            column = res[1]
+                        else:
+                            column = f'{res[1]}_x' if res[0] == table_name else f'{res[1]}_y'
+
                         operator = condition_list[i][1]
                         value = condition_list[i][2]
 
@@ -205,7 +209,7 @@ def interpret_sql(result):
         print(f"Файл {file_name} не найден")
 
 
-sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.id > table_b.id WHERE table_a.age > 45 AND table_b.age < 49  ORDER BY table_a.age ASC'''
+sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.id > table_b.id WHERE table_a.age > 45 AND table_b.age < 49 AND table_b.course = 5 ORDER BY table_a.age ASC'''
 
 result = parse_sql(sql_query)
 interpret_sql(result)
