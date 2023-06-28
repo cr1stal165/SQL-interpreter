@@ -49,12 +49,17 @@ def interpret_sql(result):
 
 
                 sort_ascending = True if result[0][item + 4][1] == 'ASC' else False
-                sort_col = f'{order_by_col[1]}_y' if order_by_col[0] == key2[0] else f'{order_by_col[1]}_x'
+
 
                 df_a = pd.read_csv(f'resources/{table_name}.csv')
                 df_b = pd.read_csv(f'resources/{table_target}.csv')
                 merged_df = pd.merge(df_a, df_b, left_on=key[len(key) - 1], right_on=key2[len(key2) - 1], how=type_join.lower())
 
+                print(order_by_col)
+                if order_by_col[1] not in df_a.columns or order_by_col[1] not in df_b.columns:
+                    sort_col = order_by_col[1]
+                else:
+                    sort_col = f'{order_by_col[1]}_y' if order_by_col[0] == key2[0] else f'{order_by_col[1]}_x'
 
                 condition_list = result[0][item + 2]
                 filtered_df = merged_df
@@ -209,7 +214,7 @@ def interpret_sql(result):
         print(f"Файл {file_name} не найден")
 
 
-sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.id > table_b.id WHERE table_a.age > 45 AND table_b.age < 49 AND table_b.course = 5 ORDER BY table_a.age ASC'''
+sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.id > table_b.id WHERE table_a.age > 45 AND table_b.age < 49 AND table_b.course = 5 ORDER BY table_b.born ASC'''
 
 result = parse_sql(sql_query)
 interpret_sql(result)
