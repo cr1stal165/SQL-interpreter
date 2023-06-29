@@ -45,90 +45,94 @@ def interpret_sql(result):
 
 
 
-                order_by_col = result[0][item + 4][0].split('.')
 
-
-                sort_ascending = True if result[0][item + 4][1] == 'ASC' else False
 
 
                 df_a = pd.read_csv(f'resources/{table_name}.csv')
                 df_b = pd.read_csv(f'resources/{table_target}.csv')
                 merged_df = pd.merge(df_a, df_b, left_on=key[len(key) - 1], right_on=key2[len(key2) - 1], how=type_join.lower())
 
-                print(order_by_col)
-                if order_by_col[1] not in df_a.columns or order_by_col[1] not in df_b.columns:
-                    sort_col = order_by_col[1]
-                else:
-                    sort_col = f'{order_by_col[1]}_y' if order_by_col[0] == key2[0] else f'{order_by_col[1]}_x'
-
-                condition_list = result[0][item + 2]
                 filtered_df = merged_df
-                logical_operator = None
 
-                for i in range(len(condition_list)):
+                if len(result[0]) >= 7:
+                    condition_list = result[0][item + 2]
 
-                    if isinstance(condition_list[i], pyparsing.results.ParseResults):
-                        res = condition_list[i][0].split('.')
-                        if res[1] not in df_a.columns or res[1] not in df_b.columns:
-                            column = res[1]
-                        else:
-                            column = f'{res[1]}_x' if res[0] == table_name else f'{res[1]}_y'
+                    logical_operator = None
 
-                        operator = condition_list[i][1]
-                        value = condition_list[i][2]
+                    for i in range(len(condition_list)):
 
-                        if logical_operator == 'AND':
-                            if value.isdigit():
-                                filtered_df = filtered_df[
-                                    filtered_df[column] & (filtered_df[column].astype(int) > int(value))]
+                        if isinstance(condition_list[i], pyparsing.results.ParseResults):
+                            res = condition_list[i][0].split('.')
+                            if res[1] not in df_a.columns or res[1] not in df_b.columns:
+                                column = res[1]
                             else:
-                                filtered_df = filtered_df[filtered_df[column] & (filtered_df[column] > value)]
-                        elif logical_operator == 'OR':
-                            if value.isdigit():
-                                filtered_df = filtered_df[
-                                    filtered_df[column] | (filtered_df[column].astype(int) > int(value))]
-                            else:
-                                filtered_df = filtered_df[filtered_df[column] | (filtered_df[column] > value)]
-                        else:
-                            if operator == '>':
-                                if value.isdigit():
-                                    filtered_df = filtered_df[filtered_df[column] > int(value)]
-                                else:
-                                    filtered_df = filtered_df[filtered_df[column] > value]
-                            elif operator == '>=':
-                                if value.isdigit():
-                                    filtered_df = filtered_df[filtered_df[column] >= int(value)]
-                                else:
-                                    filtered_df = filtered_df[filtered_df[column] >= value]
-                            elif operator == '<':
-                                if value.isdigit():
-                                    filtered_df = filtered_df[filtered_df[column] < int(value)]
-                                else:
-                                    filtered_df = filtered_df[filtered_df[column] < value]
-                            elif operator == '<=':
-                                if value.isdigit():
-                                    filtered_df = filtered_df[filtered_df[column] <= int(value)]
-                                else:
-                                    filtered_df = filtered_df[filtered_df[column] <= value]
-                            elif operator == '=':
-                                if value.isdigit():
-                                    filtered_df = filtered_df[filtered_df[column] == int(value)]
-                                else:
-                                    filtered_df = filtered_df[filtered_df[column] == value]
-                            elif operator == '!=':
-                                if value.isdigit():
-                                    filtered_df = filtered_df[filtered_df[column] != int(value)]
-                                else:
-                                    filtered_df = filtered_df[filtered_df[column] != value]
+                                column = f'{res[1]}_x' if res[0] == table_name else f'{res[1]}_y'
 
-                    elif condition_list[i] == 'AND':
-                        condition_flag = 'AND'
-                    elif condition_list[i] == 'OR':
-                        condition_flag = 'OR'
+                            operator = condition_list[i][1]
+                            value = condition_list[i][2]
+
+                            if logical_operator == 'AND':
+                                if value.isdigit():
+                                    filtered_df = filtered_df[
+                                        filtered_df[column] & (filtered_df[column].astype(int) > int(value))]
+                                else:
+                                    filtered_df = filtered_df[filtered_df[column] & (filtered_df[column] > value)]
+                            elif logical_operator == 'OR':
+                                if value.isdigit():
+                                    filtered_df = filtered_df[
+                                        filtered_df[column] | (filtered_df[column].astype(int) > int(value))]
+                                else:
+                                    filtered_df = filtered_df[filtered_df[column] | (filtered_df[column] > value)]
+                            else:
+                                if operator == '>':
+                                    if value.isdigit():
+                                        filtered_df = filtered_df[filtered_df[column] > int(value)]
+                                    else:
+                                        filtered_df = filtered_df[filtered_df[column] > value]
+                                elif operator == '>=':
+                                    if value.isdigit():
+                                        filtered_df = filtered_df[filtered_df[column] >= int(value)]
+                                    else:
+                                        filtered_df = filtered_df[filtered_df[column] >= value]
+                                elif operator == '<':
+                                    if value.isdigit():
+                                        filtered_df = filtered_df[filtered_df[column] < int(value)]
+                                    else:
+                                        filtered_df = filtered_df[filtered_df[column] < value]
+                                elif operator == '<=':
+                                    if value.isdigit():
+                                        filtered_df = filtered_df[filtered_df[column] <= int(value)]
+                                    else:
+                                        filtered_df = filtered_df[filtered_df[column] <= value]
+                                elif operator == '=':
+                                    if value.isdigit():
+                                        filtered_df = filtered_df[filtered_df[column] == int(value)]
+                                    else:
+                                        filtered_df = filtered_df[filtered_df[column] == value]
+                                elif operator == '!=':
+                                    if value.isdigit():
+                                        filtered_df = filtered_df[filtered_df[column] != int(value)]
+                                    else:
+                                        filtered_df = filtered_df[filtered_df[column] != value]
+
+                        elif condition_list[i] == 'AND':
+                            condition_flag = 'AND'
+                        elif condition_list[i] == 'OR':
+                            condition_flag = 'OR'
+
 
                 merged_df = filtered_df
 
-                merged_df = merged_df.sort_values(by=sort_col, ascending=sort_ascending)
+                if len(result[0]) == 9:
+                    order_by_col = result[0][item + 4][0].split('.')
+                    sort_ascending = True if result[0][item + 4][1] == 'ASC' else False
+                    if order_by_col[1] not in df_a.columns or order_by_col[1] not in df_b.columns:
+                        sort_col = order_by_col[1]
+                    else:
+                        sort_col = f'{order_by_col[1]}_y' if order_by_col[0] == key2[0] else f'{order_by_col[1]}_x'
+
+                    merged_df = merged_df.sort_values(by=sort_col, ascending=sort_ascending)
+
                 table_data = merged_df.values.tolist()
                 flag = True
 
@@ -214,7 +218,7 @@ def interpret_sql(result):
         print(f"Файл {file_name} не найден")
 
 
-sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.id > table_b.id WHERE table_a.age > 45 AND table_b.age < 49 AND table_b.course = 5 ORDER BY table_b.born ASC'''
+sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.id > table_b.id WHERE table_a.age > 45 ORDER BY table_a.name ASC '''
 
 result = parse_sql(sql_query)
 interpret_sql(result)
