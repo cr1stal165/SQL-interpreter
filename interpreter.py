@@ -44,10 +44,6 @@ def interpret_sql(result):
                 key2 = condition[2].split(".")
 
 
-
-
-
-
                 df_a = pd.read_csv(f'resources/{table_name}.csv')
                 df_b = pd.read_csv(f'resources/{table_target}.csv')
                 merged_df = pd.merge(df_a, df_b, left_on=key[len(key) - 1], right_on=key2[len(key2) - 1], how=type_join.lower())
@@ -218,7 +214,7 @@ def interpret_sql(result):
         print(f"Файл {file_name} не найден")
 
 
-sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.id > table_b.id WHERE table_a.age > 45 ORDER BY table_a.name ASC '''
+sql_query = '''SELECT * FROM table_a INNER JOIN table_b ON table_a.age = table_b.id'''
 
 result = parse_sql(sql_query)
 interpret_sql(result)
